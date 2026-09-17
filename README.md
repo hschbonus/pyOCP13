@@ -1,3 +1,7 @@
+# Orange County Lettings
+
+Projet 13 de la formation Python RNCP (OpenClassrooms) : refonte et outillage du site Orange County Lettings, fourni initialement par [OpenClassrooms-Student-Center/Python-OC-Lettings-FR](https://github.com/OpenClassrooms-Student-Center/Python-OC-Lettings-FR).
+
 ## Résumé
 
 Site web d'Orange County Lettings
