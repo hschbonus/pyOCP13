@@ -7,6 +7,9 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('oc_lettings_site', '0001_initial'),
+        # The old tables must be deleted only after their data has been copied
+        ('lettings', '0002_transfert_data'),
+        ('profiles', '0002_transfert_data'),
     ]
 
     operations = [

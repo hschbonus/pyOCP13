@@ -1,3 +1,4 @@
+"""Root URL configuration of the site: home page, apps routes and admin."""
 from django.contrib import admin
 from django.urls import path, include
 

@@ -1,3 +1,4 @@
+"""ASGI entry point exposing the application callable for ASGI servers."""
 import os
 
 from django.core.asgi import get_asgi_application

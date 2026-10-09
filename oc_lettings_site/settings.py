@@ -1,3 +1,4 @@
+"""Django settings of the Orange County Lettings project."""
 import os
 
 from pathlib import Path
