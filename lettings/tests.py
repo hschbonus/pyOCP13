@@ -1,4 +1,6 @@
 """Tests of the lettings app."""
+import logging
+
 import pytest
 from django.test import Client
 from django.urls import resolve, reverse
@@ -93,18 +95,25 @@ def test_letting_view(client, letting):
 
 
 @pytest.mark.django_db
-def test_letting_view_unknown_id(client):
-    """An unknown id currently raises Letting.DoesNotExist (500 page in production)."""
-    with pytest.raises(Letting.DoesNotExist):
-        client.get(reverse("lettings:letting", kwargs={"letting_id": 999}))
+def test_letting_view_unknown_id_returns_404(client, caplog):
+    """An unknown id gives the custom 404 page and logs a warning."""
+    with caplog.at_level(logging.WARNING, logger="lettings.views"):
+        response = client.get(reverse("lettings:letting", kwargs={"letting_id": 999}))
+
+    assert response.status_code == 404
+    assertTemplateUsed(response, "404.html")
+    assert "Letting with id 999 not found." in caplog.text
 
 
-@pytest.mark.django_db
-def test_letting_view_unknown_id_returns_500_page():
-    """In production, an unknown id gives the custom 500 page with a 500 status."""
+def test_server_error_displays_custom_500_page(letting, monkeypatch):
+    """An unexpected error in the view gives the custom 500 page with a 500 status."""
+    def raise_error(*args, **kwargs):
+        raise RuntimeError("forced error")
+
+    monkeypatch.setattr(views, "render", raise_error)
     client = Client(raise_request_exception=False)
 
-    response = client.get(reverse("lettings:letting", kwargs={"letting_id": 999}))
+    response = client.get(reverse("lettings:letting", kwargs={"letting_id": letting.id}))
 
     assert response.status_code == 500
     assert "500 - Server error" in response.content.decode()

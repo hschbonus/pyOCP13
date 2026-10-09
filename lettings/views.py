@@ -1,6 +1,12 @@
 """Views of the lettings app."""
+import logging
+
+from django.http import Http404
 from django.shortcuts import render
 from .models import Letting
+
+
+logger = logging.getLogger(__name__)
 
 
 def index(request):
@@ -28,10 +34,15 @@ def letting(request, letting_id):
         HttpResponse: The rendered ``lettings/letting.html`` page.
 
     Raises:
-        Letting.DoesNotExist: If no letting matches letting_id. The exception is
-            not caught here, so the user gets a 500 error page.
+        Http404: If no letting matches letting_id, so the user gets the custom
+            404 page.
     """
-    letting = Letting.objects.get(id=letting_id)
+    try:
+        letting = Letting.objects.get(id=letting_id)
+    except Letting.DoesNotExist:
+        logger.warning(f"Letting with id {letting_id} not found.")
+        raise Http404("Letting not found")
+
     context = {
         'title': letting.title,
         'address': letting.address,

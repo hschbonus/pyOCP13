@@ -1,6 +1,12 @@
 """Views of the profiles app."""
+import logging
+
+from django.http import Http404
 from django.shortcuts import render
 from .models import Profile
+
+
+logger = logging.getLogger(__name__)
 
 
 def index(request):
@@ -28,9 +34,14 @@ def profile(request, username):
         HttpResponse: The rendered ``profiles/profile.html`` page.
 
     Raises:
-        Profile.DoesNotExist: If no profile matches username. The exception is
-            not caught here, so the user gets a 500 error page.
+        Http404: If no profile matches username, so the user gets the custom
+            404 page.
     """
-    profile = Profile.objects.get(user__username=username)
+    try:
+        profile = Profile.objects.get(user__username=username)
+    except Profile.DoesNotExist:
+        logger.warning(f"Profile with username {username} not found.")
+        raise Http404("Profile not found")
+
     context = {'profile': profile}
     return render(request, 'profiles/profile.html', context)

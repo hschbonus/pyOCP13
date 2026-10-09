@@ -2,4 +2,6 @@ django==3.0
 flake8==3.7.0
 pytest-django==3.9.0
 pytest-cov==7.1.0
+python-dotenv==1.2.4
+sentry-sdk==2.71.0
 six

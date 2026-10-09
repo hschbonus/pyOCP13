@@ -1,4 +1,6 @@
 """Tests of the profiles app."""
+import logging
+
 import pytest
 from django.contrib.auth.models import User
 from django.urls import resolve, reverse
@@ -78,7 +80,11 @@ def test_profile_view(client, profile):
 
 
 @pytest.mark.django_db
-def test_profile_view_unknown_username(client):
-    """An unknown username currently raises Profile.DoesNotExist (500 page in production)."""
-    with pytest.raises(Profile.DoesNotExist):
-        client.get(reverse("profiles:profile", kwargs={"username": "nobody"}))
+def test_profile_view_unknown_username_returns_404(client, caplog):
+    """An unknown username gives the custom 404 page and logs a warning."""
+    with caplog.at_level(logging.WARNING, logger="profiles.views"):
+        response = client.get(reverse("profiles:profile", kwargs={"username": "nobody"}))
+
+    assert response.status_code == 404
+    assertTemplateUsed(response, "404.html")
+    assert "Profile with username nobody not found." in caplog.text
