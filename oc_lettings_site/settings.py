@@ -1,6 +1,17 @@
+"""Django settings of the Orange County Lettings project."""
 import os
 
 from pathlib import Path
+
+import sentry_sdk
+from dotenv import load_dotenv
+
+# Load the variables of the .env file (ignored by git) into the environment
+load_dotenv()
+
+# Without a SENTRY_DSN the SDK is disabled: nothing is sent to Sentry
+sentry_sdk.init(dsn=os.environ.get("SENTRY_DSN", ""))
+
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -10,7 +21,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'fp$9^593hsriajg$_%=5trot9g!1qa@ew(o-1#@=&4%=hp46(s'
+SECRET_KEY = os.environ.get("SECRET_KEY", "")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -114,3 +125,31 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / "static"]
+
+
+# Logging
+# https://docs.djangoproject.com/en/3.0/topics/logging/
+# Messages of level INFO and above are printed in the console. Sentry hooks itself
+# into the logging module: ERROR messages create an issue, INFO and above are kept
+# as context of the next issue.
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "simple": {
+            "format": "{asctime} {levelname} {name} {message}",
+            "style": "{",
+        },
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "simple",
+        },
+    },
+    "loggers": {
+        "lettings": {"handlers": ["console"], "level": "INFO"},
+        "profiles": {"handlers": ["console"], "level": "INFO"},
+    },
+}

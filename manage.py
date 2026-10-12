@@ -1,8 +1,15 @@
+"""Django command-line utility for administrative tasks."""
 import os
 import sys
 
 
 def main():
+    """Run administrative tasks from the command line.
+
+    Raises:
+        ImportError: If Django is not installed or the virtual environment is
+            not activated.
+    """
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'oc_lettings_site.settings')
     try:
         from django.core.management import execute_from_command_line
