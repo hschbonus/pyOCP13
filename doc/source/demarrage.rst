@@ -1,15 +1,17 @@
 Démarrage rapide
 ================
 
-Une fois le projet installé (voir :doc:`installation`), le site se lance en trois
-commandes depuis la racine du projet, avec l'environnement virtuel activé :
+Une fois le projet installé (voir :doc:`installation`), le site se lance avec les
+commandes suivantes, depuis la racine du projet, avec l'environnement virtuel activé :
 
 .. code-block:: bash
 
    source venv/bin/activate
+   python manage.py migrate
    python manage.py runserver
 
-Ouvrir ensuite http://localhost:8000 dans un navigateur. La page d'accueil donne
+Le dépôt contient la base d'origine : ``migrate`` crée les tables des applications
+``lettings`` et ``profiles`` et y copie les données. Ouvrir ensuite http://localhost:8000 dans un navigateur. La page d'accueil donne
 accès à la liste des locations et à la liste des profils.
 
 Vérifier la qualité du code

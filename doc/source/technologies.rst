@@ -29,6 +29,9 @@ Application
    * - WhiteNoise
      - 5.3.0
      - Service des fichiers statiques en production, y compris ceux de l'administration
+   * - Gunicorn
+     - 23.0.0
+     - Serveur d'application WSGI qui exécute le site en production
    * - python-dotenv
      - 1.2.4
      - Lecture des variables d'environnement depuis le fichier ``.env``
