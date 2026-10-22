@@ -12,7 +12,8 @@ recherche-hebergeur.md
 .pytest_cache/
 .coverage
 htmlcov/
-livrable/
+livrables/
+*.zip
 demo.md
 _cours
 staticfiles/
