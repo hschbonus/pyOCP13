@@ -59,6 +59,7 @@ Les données sensibles (clé secrète de Django, clé Sentry) ne sont jamais éc
 - `source venv/bin/activate`
 - `pip install --requirement requirements.txt`
 - Vérifier que le fichier `.env` existe (voir la section précédente)
+- `python manage.py migrate` (le repository contient la base d'origine : cette commande crée les tables des applications `lettings` et `profiles` et y copie les données. À relancer après chaque nouvelle migration)
 - `python manage.py runserver`
 - Aller sur `http://localhost:8000` dans un navigateur.
 - Confirmer que le site fonctionne et qu'il est possible de naviguer (vous devriez voir plusieurs profils et locations).
@@ -148,6 +149,7 @@ Le pipeline est défini dans `.github/workflows/ci.yml`. Il contient trois jobs 
 - L'image est publiée avec deux étiquettes (*tags*) : le hash du commit (`<utilisateur>/oc-lettings:<hash>`) et `latest`. Le job `deploy` déploie l'étiquette du hash, donc exactement l'image construite à partir du commit qui vient d'être fusionné.
 - Si les tests échouent, aucune image n'est publiée et rien n'est déployé.
 - Le `Dockerfile` part de `python:3.11-slim`, installe `requirements.txt`, copie le code et exécute `collectstatic` pour rassembler les fichiers statiques. Ils sont servis par [WhiteNoise](https://whitenoise.readthedocs.io), sans serveur supplémentaire, y compris ceux de l'interface d'administration.
+- Au démarrage de chaque conteneur, le script `entrypoint.sh` (déclaré par `ENTRYPOINT` dans le `Dockerfile`) s'arrête à la première erreur, applique les migrations (`migrate`), relance `collectstatic`, puis lance le site avec [Gunicorn](https://gunicorn.org) sur le port 8000. Le serveur applique donc lui-même les migrations à chaque déploiement : le repository contient la base d'origine, jamais une base déjà migrée sur un poste local.
 - La version de Python du pipeline (3.11) doit rester identique à celle du `Dockerfile` et de l'environnement local : `flake8` 3.7.0 ne fonctionne pas avec Python 3.14.
 
 ### Configuration requise
@@ -210,7 +212,7 @@ Aller ensuite sur `http://localhost:8000`. Pour utiliser une version précise, r
 ### Points d'attention
 
 - **Mise en veille** : sur l'offre gratuite de Render, le site s'endort après 15 minutes sans visite, et le réveil prend environ une minute. Ouvrir le site avant une démonstration.
-- **Base de données** : la base SQLite (`oc-lettings-site.sqlite3`) est copiée dans l'image. Les modifications faites en production, par exemple depuis l'interface d'administration, sont perdues au déploiement suivant. Les données de démonstration sont restaurées à chaque déploiement.
-- **Serveur** : le conteneur lance `runserver`, le serveur de développement de Django. Pour une charge réelle, il faudrait un serveur d'application adapté (par exemple gunicorn).
+- **Base de données** : la base SQLite (`oc-lettings-site.sqlite3`) est copiée dans l'image dans son état d'origine, puis migrée par `entrypoint.sh` à chaque démarrage du conteneur. Les modifications faites en production, par exemple depuis l'interface d'administration, sont perdues au déploiement suivant. Les données de démonstration sont restaurées à chaque déploiement. Avec une base persistante (PostgreSQL par exemple), seules les nouvelles migrations seraient appliquées.
+- **Serveur** : le conteneur lance Gunicorn, un serveur d'application WSGI adapté à la production, et non `runserver`, le serveur de développement de Django.
 - **Fichiers de l'image** : `.dockerignore` exclut `.env`, `venv`, `.git` et les documents du projet : aucun secret n'entre dans l'image.
 - **Déploiement automatique de Render** : désactivé, car le service est piloté par le deploy hook. Un bouton *Manual Deploy* dans Render redéploie l'étiquette configurée dans le service, qui peut ne pas être la plus récente.

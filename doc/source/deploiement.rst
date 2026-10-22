@@ -110,15 +110,25 @@ Le ``Dockerfile`` exécute ``collectstatic`` à la construction de l'image. Whit
 déclaré dans les middlewares, sert ensuite ces fichiers sans serveur supplémentaire,
 y compris ceux de l'interface d'administration.
 
+Démarrage du conteneur
+----------------------
+
+Le ``Dockerfile`` déclare ``entrypoint.sh`` comme point d'entrée. À chaque démarrage
+du conteneur, ce script s'arrête à la première erreur, applique les migrations
+(``migrate``), relance ``collectstatic``, puis lance l'application avec Gunicorn sur
+le port 8000. Le dépôt contient la base d'origine : c'est le serveur qui applique les
+migrations à chaque déploiement, pas un poste local.
+
 Gestion et points d'attention
 -----------------------------
 
 - **Mise en veille** : sur l'offre gratuite de Render, le site s'endort après
   15 minutes sans visite et met environ une minute à se réveiller.
-- **Base de données** : la base SQLite est copiée dans l'image. Les modifications
-  faites en production sont perdues au déploiement suivant.
-- **Serveur** : le conteneur lance ``runserver``, le serveur de développement de
-  Django. Une charge réelle demanderait un serveur d'application adapté.
+- **Base de données** : la base SQLite est copiée dans l'image dans son état d'origine,
+  puis migrée au démarrage du conteneur. Les modifications faites en production sont
+  perdues au déploiement suivant.
+- **Serveur** : le conteneur lance Gunicorn, un serveur d'application WSGI adapté à la
+  production, et non ``runserver``, le serveur de développement de Django.
 - **Surveillance** : si ``SENTRY_DSN`` est défini, les erreurs de production
   apparaissent dans la liste *Issues* du projet Sentry.
 - **Déploiement automatique de Render** : désactivé, le service est piloté par le
