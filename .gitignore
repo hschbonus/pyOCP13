@@ -6,6 +6,7 @@ __pycache__/
 .claude/
 mission/
 CLAUDE.md
+AGENTS.md
 BACKLOG.md
 mentor-notes.md
 recherche-hebergeur.md
@@ -15,6 +16,7 @@ htmlcov/
 livrables/
 *.zip
 demo.md
+soutenance.md
 _cours
 staticfiles/
 doc/build/
