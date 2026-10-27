@@ -2,6 +2,7 @@
 from django.shortcuts import render
 from django.http import HttpResponseNotFound, HttpResponseServerError
 from django.template.loader import render_to_string
+from django.http import HttpResponse
 
 
 def index(request):
@@ -28,4 +29,4 @@ def crash(request):
     """View to simulate a server error for testing purposes."""
     if request.user.is_authenticated:
         raise Exception("Simulated server error for testing.")
-    return
+    return HttpResponse()
