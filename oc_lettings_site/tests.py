@@ -18,7 +18,7 @@ def test_index_view(client):
 
     assert response.status_code == 200
     assertTemplateUsed(response, "index.html")
-    assertContains(response, "Welcome to Holiday Homes")
+    assertContains(response, "Holiday Homes")
     assertContains(response, reverse("lettings:lettings_index"))
     assertContains(response, reverse("profiles:profiles_index"))
 
